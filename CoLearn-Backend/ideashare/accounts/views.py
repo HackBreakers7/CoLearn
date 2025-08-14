@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+import datetime
 
 # Create your views here.
 from django.contrib.auth.hashers import make_password
@@ -12,8 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import CustomUser, OTP
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import login as auth_login 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login as auth_login 
 from rest_framework.permissions import AllowAny
 
 
@@ -128,13 +127,35 @@ def login_user(request):
         refresh=RefreshToken.for_user(user)
         access=str(refresh.access_token)
 
-        return Response({
+        access_expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        refresh_expiry = datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        
+        response = Response({
             'message':'Login successful!',
-            'refresh':str(refresh),
-            'access':access,
             'username':user.username,
             'user_id':user.id
         },status=status.HTTP_200_OK)
-    else:
-        return Response({'error':'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
+    
+    
+        response.set_cookie(
+            key='access_token',
+            value=access,
+            httponly=True,
+            secure=True,
+            samesite='Strict',
+            expires=access_expiry
+        )        
+        response.set_cookie(
+            key='refresh_token',
+            value=str(refresh),
+            httponly=True,
+            secure=True,
+            samesite='Strict',
+            expires=refresh_expiry
+        )
         
+        return response
+    
+    else:
+        return Response({'error':'Invalid credentials.'},status=status.HTTP_401_UNAUTHORIZED)
+    

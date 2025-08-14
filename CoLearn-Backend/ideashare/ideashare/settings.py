@@ -41,9 +41,20 @@ INSTALLED_APPS = [
     'accounts',
     'corsheaders',
     'rest_framework_simplejwt',
+    'rest_framework',
+    
+    # for google
+    'django.contrib.sites',
+    "dj_rest_auth",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -51,7 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     "corsheaders.middleware.CorsMiddleware",
+    'allauth.account.middleware.AccountMiddleware',
     
 ]
 
@@ -83,7 +94,7 @@ DATABASES = {
        'ENGINE': 'django.db.backends.postgresql',
        'NAME': 'CoLearn',
        'USER': 'postgres',
-       'PASSWORD': 'ran16',
+       'PASSWORD': 'nitraj9922',
        'HOST': 'localhost',
        'PORT': '5432',
    }
@@ -148,6 +159,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,                   # Rotate refresh tokens
     'BLACKLIST_AFTER_ROTATION': True,                 # Blacklist old refresh tokens after rotation
 }
+CORS_ALLOW_CREDENTIALS = True
 
 
 REST_FRAMEWORK = {
@@ -167,3 +179,15 @@ CORS_ALLOWED_ORIGINS = [
 
 # OR for development only (use carefully):
 CORS_ALLOW_ALL_ORIGINS = True
+
+# for google login
+SITE_ID = 1
+
+REST_USE_JWT = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
